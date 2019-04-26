@@ -1,13 +1,7 @@
 package cn.edu.lnu.mapreduce;
 
-import cn.edu.lnu.pojo.EdgeNode;
-import cn.edu.lnu.pojo.Graph;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 通过MapReduce函数，初始化图，并通过后续函数进行可达判断
@@ -29,7 +23,6 @@ public class Init {
                     if(flag){
                         map.put(start , list);
                     }
-
                 }else {
                     list = map.get(start);
                     list.add(end);
@@ -45,9 +38,29 @@ public class Init {
         return map;
     }
 
+    static Map<Integer , List<Integer>> map;
+
     public static void main(String[] args) {
-        Map<Integer , List<Integer>> map = initGraph();
-        Graph graph = new Graph().createGraph(map);
+        map = initGraph();
+
+        String flag = "no";
+
+        while (true){
+            Scanner scanner1 = new Scanner(System.in);
+            int start = scanner1.nextInt();
+            Scanner scanner2 = new Scanner(System.in);
+            int end = scanner2.nextInt();
+
+            try {
+                query(start , end);
+                System.out.println(flag);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+        }
+
+        /*Graph graph = new Graph().createGraph(map);
         for(int i = 0; i < graph.getVertexNodes().length; i++){
             System.out.print(graph.getVertexNodes()[i].getData());
             EdgeNode edge = graph.getVertexNodes()[i].getFirst();
@@ -56,6 +69,31 @@ public class Init {
                 edge = edge.getNext();
             }
             System.out.println();
+        }*/
+
+    }
+
+    /**
+     * 判断两点之间是否可达
+     * @description 迭代中当找到两点存在可达时，直接退出所有循环，通过throw exception来实现
+     * @param start
+     * @param end
+     * @throws Exception
+     */
+    public static void query(int start , int end) throws Exception {
+        List<Integer> list = new ArrayList<>();
+        if(map.containsKey(start)){
+            list = map.get(start);
         }
+        if(!list.isEmpty()){
+            if(list.contains(end)){
+                throw new Exception("can");
+            }else{
+                for(int i = 0; i < list.size(); i++){
+                    query(list.get(i) , end);
+                }
+            }
+        }
+        return;
     }
 }
